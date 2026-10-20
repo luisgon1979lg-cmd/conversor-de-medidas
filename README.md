@@ -50,6 +50,20 @@ py test_conversor.py
 py app_gui.py
 ```
 
-### 3. Abrir la versión Web
+### 3. Ejecutar desde consola (CLI)
+```powershell
+py conversor.py 500 mm cm
+py conversor.py 2,5 m mm
+```
+
+### 4. Abrir la versión Web
 Haz doble clic en `index.html` o ábrelo en cualquier navegador (Chrome, Edge, Firefox).
+
+---
+
+## Control de Errores y Validaciones
+- **Entradas no numéricas**: Se gestionan amigablemente informando al usuario en vez de interrumpir la aplicación.
+- **Coma decimal**: Soporte nativo para formatos con coma (ej. `2,5`) o punto (ej. `2.5`).
+- **Unidades admitidas**: `mm`, `cm`, `m`.
+
 
