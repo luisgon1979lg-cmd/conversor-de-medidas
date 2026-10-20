@@ -10,6 +10,7 @@
       --primary-hover: #0369a1;
       --secondary: #64748b;
       --secondary-hover: #475569;
+      --danger: #dc2626;
       --bg: #f8fafc;
       --card-bg: #ffffff;
       --border: #e2e8f0;
@@ -147,6 +148,12 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      transition: all 0.2s ease;
+    }
+
+    .result-section.has-error {
+      background: #fef2f2;
+      border-color: #fca5a5;
     }
 
     .result-section .label {
@@ -158,11 +165,20 @@
       margin-bottom: 4px;
     }
 
+    .result-section.has-error .label {
+      color: #b91c1c;
+    }
+
     .result-section .value {
       font-size: 1.6rem;
       font-weight: 700;
       color: #0284c7;
       min-height: 2rem;
+    }
+
+    .result-section.has-error .value {
+      color: var(--danger);
+      font-size: 1.05rem;
     }
 
     .scenarios-box {
@@ -208,7 +224,7 @@
     <form id="conversor-form" onsubmit="event.preventDefault(); ejecutarConversion();">
       <div class="form-group">
         <label for="valor">Valor a convertir:</label>
-        <input type="number" step="any" id="valor" placeholder="Ej: 500 o 2.5" required>
+        <input type="text" id="valor" placeholder="Ej: 500 o 2.5" required autocomplete="off">
       </div>
 
       <div class="grid-2 form-group">
@@ -236,8 +252,8 @@
       </div>
     </form>
 
-    <div class="result-section">
-      <div class="label">Zona de Resultado</div>
+    <div class="result-section" id="res-box">
+      <div class="label" id="res-label">Zona de Resultado</div>
       <div class="value" id="zona-resultado"></div>
     </div>
 
@@ -260,10 +276,14 @@
       if (!(origen in FACTORES) || !(destino in FACTORES)) {
         throw new Error("Unidad no válida");
       }
-      const valNum = parseFloat(valor);
-      if (isNaN(valNum)) {
-        throw new Error("Valor numérico no válido");
+      
+      const strVal = String(valor).trim().replace(',', '.');
+      const valNum = Number(strVal);
+
+      if (isNaN(valNum) || strVal === '') {
+        throw new Error(`El valor '${valor}' no es un número válido`);
       }
+
       const metros = valNum * FACTORES[origen];
       const resultado = metros / FACTORES[destino];
       return Math.round(resultado * 1e6) / 1e6;
@@ -274,43 +294,54 @@
       const origen = document.getElementById('origen').value;
       const destino = document.getElementById('destino').value;
       const zona = document.getElementById('zona-resultado');
+      const box = document.getElementById('res-box');
+      const label = document.getElementById('res-label');
 
-      if (valor === '') {
+      if (!valor.trim()) {
+        box.classList.remove('has-error');
         zona.textContent = '';
         return;
       }
 
       try {
         const resultado = convertir(valor, origen, destino);
+        box.classList.remove('has-error');
+        label.textContent = 'Zona de Resultado';
         zona.textContent = `${resultado.toFixed(1)} ${destino}`;
       } catch (e) {
-        zona.textContent = 'Error en el cálculo';
+        box.classList.add('has-error');
+        label.textContent = 'Error';
+        zona.textContent = e.message;
       }
     }
 
     function limpiarResultado() {
-      // Escenario: Limpiar la zona de resultado -> zona de resultado queda vacía
-      document.getElementById('zona-resultado').textContent = '';
+      const box = document.getElementById('res-box');
+      const label = document.getElementById('res-label');
+      const zona = document.getElementById('zona-resultado');
+      box.classList.remove('has-error');
+      label.textContent = 'Zona de Resultado';
+      zona.textContent = '';
     }
 
     function cargarEscenario1() {
-      document.getElementById('valor').value = 500;
+      document.getElementById('valor').value = "500";
       document.getElementById('origen').value = 'mm';
       document.getElementById('destino').value = 'cm';
       ejecutarConversion();
     }
 
     function cargarEscenario2() {
-      document.getElementById('valor').value = 2.5;
+      document.getElementById('valor').value = "2.5";
       document.getElementById('origen').value = 'm';
       document.getElementById('destino').value = 'mm';
       ejecutarConversion();
     }
 
     function cargarEscenario3() {
+      limpiarResultado();
       document.getElementById('zona-resultado').textContent = '100 cm';
     }
   </script>
 </body>
 </html>
-

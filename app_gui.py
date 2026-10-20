@@ -1,5 +1,5 @@
 """Interfaz gráfica de usuario (GUI) con Tkinter para el conversor de medidas de longitud.
-Implementa los escenarios BDD definidos para mm, cm y m.
+Implementa los escenarios BDD definidos para mm, cm y m, y maneja de forma robusta entradas no numéricas.
 """
 
 import tkinter as tk
@@ -17,7 +17,7 @@ class ConversorApp:
             self._owns_root = False
 
         self.root.title("Conversor de Medidas - Robots Móviles Autónomos")
-        self.root.geometry("460x380")
+        self.root.geometry("480x400")
         self.root.resizable(False, False)
 
         # Variables de estado
@@ -39,6 +39,7 @@ class ConversorApp:
         style.configure("Title.TLabel", font=("Segoe UI", 14, "bold"), foreground="#1e293b")
         style.configure("Subtitle.TLabel", font=("Segoe UI", 9), foreground="#64748b")
         style.configure("Result.TLabel", font=("Segoe UI", 16, "bold"), foreground="#0284c7")
+        style.configure("ErrorResult.TLabel", font=("Segoe UI", 12, "bold"), foreground="#dc2626")
         style.configure("Primary.TButton", font=("Segoe UI", 10, "bold"))
         style.configure("Secondary.TButton", font=("Segoe UI", 10))
 
@@ -114,7 +115,8 @@ class ConversorApp:
             res_frame,
             textvariable=self.resultado_var,
             style="Result.TLabel",
-            anchor="center"
+            anchor="center",
+            wraplength=400
         )
         self.lbl_resultado.pack(fill="both", expand=True)
 
@@ -122,30 +124,29 @@ class ConversorApp:
         """Ejecuta la conversión con los valores actuales de los campos."""
         texto_valor = self.valor_var.get().strip()
         if not texto_valor:
-            messagebox.showwarning("Atención", "Por favor introduzca un valor a convertir.")
-            return
-
-        try:
-            val = float(texto_valor)
-        except ValueError:
-            messagebox.showerror("Error", f"El valor '{texto_valor}' no es un número válido.")
+            self.lbl_resultado.configure(style="ErrorResult.TLabel")
+            self.resultado_var.set("Atención: Introduzca un valor a convertir")
+            self.ultimo_resultado_num = None
             return
 
         origen = self.origen_var.get()
         destino = self.destino_var.get()
 
         try:
-            res = convertir(val, origen, destino)
+            res = convertir(texto_valor, origen, destino)
             self.ultimo_resultado_num = res
-            # Si el resultado es entero en valor flotante, se formatea coherentemente (ej: 50.0, 2500.0)
+            self.lbl_resultado.configure(style="Result.TLabel")
             self.resultado_var.set(f"{res} {destino}")
-        except Exception as e:
-            messagebox.showerror("Error", str(e))
+        except ValueError as e:
+            self.ultimo_resultado_num = None
+            self.lbl_resultado.configure(style="ErrorResult.TLabel")
+            self.resultado_var.set(f"Error: {e}")
 
     def limpiar_resultado(self):
         """Limpia la zona de resultado según la especificación del escenario BDD."""
         self.resultado_var.set("")
         self.ultimo_resultado_num = None
+        self.lbl_resultado.configure(style="Result.TLabel")
 
     def limpiar_todo(self):
         """Limpia tanto la zona de resultado como el campo de valor."""
@@ -160,4 +161,3 @@ class ConversorApp:
 if __name__ == "__main__":
     app = ConversorApp()
     app.mainloop()
-
