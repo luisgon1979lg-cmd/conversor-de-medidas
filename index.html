@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversor de Medidas de Longitud (mm, cm, m)</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --secondary: #64748b;
+      --secondary-hover: #475569;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 480px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      padding: 28px;
+      border: 1px solid var(--border);
+    }
+
+    .header {
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      font-size: 0.95rem;
+      background-color: #fff;
+      color: var(--text);
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .button-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+      margin-bottom: 24px;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: background-color 0.15s ease, transform 0.05s ease;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn-secondary {
+      background-color: #f1f5f9;
+      color: #334155;
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #e2e8f0;
+    }
+
+    .result-section {
+      background: #f0f9ff;
+      border: 1px dashed #7dd3fc;
+      border-radius: 10px;
+      padding: 18px;
+      text-align: center;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .result-section .label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #0369a1;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .result-section .value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #0284c7;
+      min-height: 2rem;
+    }
+
+    .scenarios-box {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .scenarios-box h3 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .preset-btn {
+      display: inline-block;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      padding: 6px 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      background: #f1f5f9;
+      color: #475569;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .preset-btn:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Conversor de Medidas</h1>
+      <p>Robots Móviles Autónomos &bull; Conversión de mm, cm y m</p>
+    </div>
+
+    <form id="conversor-form" onsubmit="event.preventDefault(); ejecutarConversion();">
+      <div class="form-group">
+        <label for="valor">Valor a convertir:</label>
+        <input type="number" step="any" id="valor" placeholder="Ej: 500 o 2.5" required>
+      </div>
+
+      <div class="grid-2 form-group">
+        <div>
+          <label for="origen">Unidad de origen:</label>
+          <select id="origen">
+            <option value="mm">mm (milímetros)</option>
+            <option value="cm">cm (centímetros)</option>
+            <option value="m">m (metros)</option>
+          </select>
+        </div>
+        <div>
+          <label for="destino">Unidad de destino:</label>
+          <select id="destino">
+            <option value="cm">cm (centímetros)</option>
+            <option value="mm">mm (milímetros)</option>
+            <option value="m">m (metros)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="button-group">
+        <button type="submit" class="btn-primary" id="btn-convertir">Convertir</button>
+        <button type="button" class="btn-secondary" id="btn-limpiar" onclick="limpiarResultado()">Limpiar</button>
+      </div>
+    </form>
+
+    <div class="result-section">
+      <div class="label">Zona de Resultado</div>
+      <div class="value" id="zona-resultado"></div>
+    </div>
+
+    <div class="scenarios-box">
+      <h3>Cargar Escenarios BDD:</h3>
+      <button type="button" class="preset-btn" onclick="cargarEscenario1()">Escenario 1: 500 mm &rarr; cm</button>
+      <button type="button" class="preset-btn" onclick="cargarEscenario2()">Escenario 2: 2.5 m &rarr; mm</button>
+      <button type="button" class="preset-btn" onclick="cargarEscenario3()">Escenario 3: Limpiar "100 cm"</button>
+    </div>
+  </div>
+
+  <script>
+    const FACTORES = {
+      mm: 0.001,
+      cm: 0.01,
+      m: 1.0
+    };
+
+    function convertir(valor, origen, destino) {
+      if (!(origen in FACTORES) || !(destino in FACTORES)) {
+        throw new Error("Unidad no válida");
+      }
+      const valNum = parseFloat(valor);
+      if (isNaN(valNum)) {
+        throw new Error("Valor numérico no válido");
+      }
+      const metros = valNum * FACTORES[origen];
+      const resultado = metros / FACTORES[destino];
+      return Math.round(resultado * 1e6) / 1e6;
+    }
+
+    function ejecutarConversion() {
+      const valor = document.getElementById('valor').value;
+      const origen = document.getElementById('origen').value;
+      const destino = document.getElementById('destino').value;
+      const zona = document.getElementById('zona-resultado');
+
+      if (valor === '') {
+        zona.textContent = '';
+        return;
+      }
+
+      try {
+        const resultado = convertir(valor, origen, destino);
+        zona.textContent = `${resultado.toFixed(1)} ${destino}`;
+      } catch (e) {
+        zona.textContent = 'Error en el cálculo';
+      }
+    }
+
+    function limpiarResultado() {
+      // Escenario: Limpiar la zona de resultado -> zona de resultado queda vacía
+      document.getElementById('zona-resultado').textContent = '';
+    }
+
+    function cargarEscenario1() {
+      document.getElementById('valor').value = 500;
+      document.getElementById('origen').value = 'mm';
+      document.getElementById('destino').value = 'cm';
+      ejecutarConversion();
+    }
+
+    function cargarEscenario2() {
+      document.getElementById('valor').value = 2.5;
+      document.getElementById('origen').value = 'm';
+      document.getElementById('destino').value = 'mm';
+      ejecutarConversion();
+    }
+
+    function cargarEscenario3() {
+      document.getElementById('zona-resultado').textContent = '100 cm';
+    }
+  </script>
+</body>
+</html>
+

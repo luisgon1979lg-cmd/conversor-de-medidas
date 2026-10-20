@@ -1,0 +1,20 @@
+Característica: Conversión de medidas de longitud (mm, cm, m)
+
+  Escenario: Convertir milímetros a centímetros
+    Dado que el usuario introduce el valor 500
+    Y la unidad de origen es "mm"
+    Y la unidad de destino es "cm"
+    Cuando se solicita la conversión
+    Entonces el resultado obtenido debe ser 50.0
+
+  Escenario: Convertir metros a milímetros
+    Dado que el usuario introduce el valor 2.5
+    Y la unidad de origen es "m"
+    Y la unidad de destino es "mm"
+    Cuando se solicita la conversión
+    Entonces el resultado obtenido debe ser 2500.0
+
+  Escenario: Limpiar la zona de resultado
+    Dado que existe un resultado de conversión "100 cm"
+    Cuando el usuario presiona el botón de limpiar
+    Entonces la zona de resultado debe quedar vacía
